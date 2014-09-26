@@ -1,0 +1,14 @@
+{
+  "name": "bender-broccoli-utils",
+  "description": "Generic bender-broccoli utils used by lots of packages",
+  "version": "0.0.1",
+  "author": "Tim Finley <tfinley@hubspot.com>",
+  "main": "index.coffee",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HubSpot/bender-broccoli-utils"
+  },
+  "dependencies": {
+    "object-assign": "~1.0.0"
+  }
+}
