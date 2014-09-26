@@ -50,6 +50,10 @@ resolveDirAndPath = (inputPath, options = {}) ->
   else
     [resolvedDir, relativePath]
 
+resolvePath = (inputPath, options) ->
+  [resolvedDir, resolvedPath] = resolveDirAndPath inputPath, options
+  resolvedPath
+
 # See if partialPath exists inside any of dirsToCheck optionally with a number of
 # different extensions. If/when found, return an array like: [resolvedDir, relativePathFromDir]
 searchForPath = (partialPath, dirsToCheck, options = {}) ->
@@ -117,6 +121,7 @@ ensureRelativeDirsAreSubdirs = (extraRelativeDirs, baseDirs) ->
 
 
 module.exports = {
+  resolvePath
   resolveDirAndPath
   searchForPath
 }

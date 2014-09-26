@@ -1,3 +1,5 @@
+objectAssign = require('objectAssign')
+
 
 extractExtension = (filepath, options = {}) ->
   extension = path.extname(filepath).slice(1)
