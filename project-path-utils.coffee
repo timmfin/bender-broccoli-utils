@@ -1,3 +1,6 @@
+{ isAStaticVersionString } = require('./static-version-utils')
+
+
 extractProjectAndVersionFromPath = (filepath) ->
   if filepath
     tokens = filepath.split('/')

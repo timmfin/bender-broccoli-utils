@@ -1,7 +1,12 @@
+path = require('path')
+fs = require('fs')
+
+{ extractBaseDirectoryAndRelativePath } = require('./extract-dir-utils')
 { extractExtension } = require('./extension-utils')
 
 
-MISSING_FILENAME_OPTION_MESSAGE = "Required filename option wasn't passed to resolvePath"
+missingFilenameOptionMessage = (inputPath, options) ->
+  "Required filename option wasn't passed to resolvePath (for #{inputPath})"
 
 # Resolve a path via the current filename (passed in via options.filename) and
 # among any of the passed loadPaths.
@@ -18,7 +23,8 @@ resolveDirAndPath = (inputPath, options = {}) ->
   # Some mangle-ing to convert a relative path into a path that is
   # relative to the srcDir (which should have been included in options.loadPaths)
   if /^\.|^\.\.|^\.\.\//.test inputPath
-    throw new Error MISSING_FILENAME_OPTION_MESSAGE unless options.filename?
+    if not options.filename?
+      throw new Error missingFilenameOptionMessage(inputPath, options)
 
     absolutizedPath = path.join path.dirname(options.filename), inputPath
     [resolvedBaseDir, newRelativePath] = extractBaseDirectoryAndRelativePath absolutizedPath, dirsToCheck
@@ -27,13 +33,17 @@ resolveDirAndPath = (inputPath, options = {}) ->
   # By default, try to look up paths relatively to the parent's path (if relative
   # paths require `./` or `../` set allowRelativeLookupWithoutPrefix to false)
   else if options.allowRelativeLookupWithoutPrefix isnt false
-    throw new Error MISSING_FILENAME_OPTION_MESSAGE unless options.filename?
+    if not options.filename?
+      throw new Error missingFilenameOptionMessage(inputPath, options)
+
     extraRelativeDirsToCheck.push path.dirname(options.filename)
 
   # Do the search
   [resolvedDir, relativePath] = searchForPath inputPath, dirsToCheck,
     extensionsToCheck: extensionsToCheck
     extraRelativeDirsToCheck: extraRelativeDirsToCheck
+    onlyAllow: options.onlyAllow
+    allowDirectory: options.allowDirectory
 
   # Throw a useful error if no path is found. Otherwise return the first successful
   # path found by _searchForPath

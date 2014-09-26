@@ -1,4 +1,5 @@
-objectAssign = require('objectAssign')
+objectAssign = require('object-assign')
+path = require('path')
 
 
 extractExtension = (filepath, options = {}) ->
@@ -30,8 +31,8 @@ DEFAULT_PREPROCESSOR_EXTENSIONS =
     dust: true
     ejs: true
 
-convertFromPrepressorExtension = (filepath, options = {}) ->
   extension = extractExtension(filepath)
+convertFromPreprossorExtension = (filepath, options = {}) ->
 
   # If there was no valid extension on the passed path, get the extension from the
   # parent path (the file where the passed path came from)
@@ -41,7 +42,7 @@ convertFromPrepressorExtension = (filepath, options = {}) ->
   preprocessorsByExtension = options.preprocessorsByExtension ? DEFAULT_PREPROCESSOR_EXTENSIONS
 
   for baseExtension, preprocessorExtensions of preprocessorsByExtension
-    if extension in preprocessorExtensions
+    if preprocessorExtensions[extension]?
       newExtension = baseExtension
 
   if newExtension
@@ -51,17 +52,17 @@ convertFromPrepressorExtension = (filepath, options = {}) ->
 
 # Creates a new function with pre-filled options. Useful to create a function
 # already set with your default preprocessor extensions
-convertFromPrepressorExtension.curry = (originalOptions = {}) ->
+convertFromPreprossorExtension.curry = (originalOptions = {}) ->
   (filepath, newOptions = {}) ->
     # Merge passed options on type of curried options
     options = objectAssign {}, originalOptions, newOptions
 
-    convertFromPrepressorExtension filepath, options
+    convertFromPreprossorExtension filepath, options
 
 
 module.exports = {
   extractExtension
-  convertFromPrepressorExtension
+  convertFromPreprossorExtension
 
   DEFAULT_PREPROCESSOR_EXTENSIONS
 }
