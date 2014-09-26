@@ -1,7 +1,7 @@
 assert = require('assert')
 should = require('should')
 
-{ extractExtension, convertFromPreprossorExtension, DEFAULT_PREPROCESSOR_EXTENSIONS } = require('../extension-utils')
+{ extractExtension, convertFromPreprocessorExtension, DEFAULT_PREPROCESSOR_EXTENSIONS } = require('../extension-utils')
 
 describe 'extension-utils', ->
 
@@ -39,8 +39,8 @@ describe 'extension-utils', ->
       DEFAULT_PREPROCESSOR_EXTENSIONS.css.should.be.an.Object
 
 
-  describe 'convertFromPreprossorExtension', ->
-    conv = convertFromPreprossorExtension
+  describe 'convertFromPreprocessorExtension', ->
+    conv = convertFromPreprocessorExtension
 
     it 'should convert basic/default preprocssor extensions', ->
       conv('a.coffee').should.be.eql 'a.js'
@@ -92,5 +92,5 @@ describe 'extension-utils', ->
       conv('a/b/c.other', { onlyAllow: onlyAllow, parentFilename: 'p.stylus' }).should.be.eql 'a/b/c.other.css'
 
 
-  describe 'convertFromPreprossorExtension.curry', ->
+  describe 'convertFromPreprocessorExtension.curry', ->
     # TODO
