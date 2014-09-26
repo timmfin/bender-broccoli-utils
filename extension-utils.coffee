@@ -31,13 +31,13 @@ DEFAULT_PREPROCESSOR_EXTENSIONS =
     dust: true
     ejs: true
 
-  extension = extractExtension(filepath)
 convertFromPreprossorExtension = (filepath, options = {}) ->
+  originalExtension = extension = extractExtension(filepath, options)
 
   # If there was no valid extension on the passed path, get the extension from the
   # parent path (the file where the passed path came from)
   if extension is '' and options.parentFilename?
-    extension = extractExtension(options.parentFilename)
+    extension = extractExtension(options.parentFilename, options)
 
   preprocessorsByExtension = options.preprocessorsByExtension ? DEFAULT_PREPROCESSOR_EXTENSIONS
 
@@ -45,8 +45,10 @@ convertFromPreprossorExtension = (filepath, options = {}) ->
     if preprocessorExtensions[extension]?
       newExtension = baseExtension
 
-  if newExtension
-    filepath.replace(new RegExp("\\.#{extension}$"), ".#{newExtension}")
+  if newExtension and originalExtension is ''
+    filepath + ".#{newExtension}"
+  else if newExtension
+    filepath.replace(new RegExp("\\.#{originalExtension}$"), ".#{newExtension}")
   else
     filepath
 

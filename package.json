@@ -4,11 +4,19 @@
   "version": "0.0.1",
   "author": "Tim Finley <tfinley@hubspot.com>",
   "main": "index.coffee",
+  "scripts": {
+    "test": "mocha --compilers coffee:coffee-script/register"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/HubSpot/bender-broccoli-utils"
   },
   "dependencies": {
     "object-assign": "^1.0.0"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.8.0",
+    "mocha": "^1.21.4",
+    "should": "^4.0.4"
   }
 }
