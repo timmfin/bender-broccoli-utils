@@ -31,7 +31,7 @@ DEFAULT_PREPROCESSOR_EXTENSIONS =
     dust: true
     ejs: true
 
-convertFromPreprossorExtension = (filepath, options = {}) ->
+convertFromPreprocessorExtension = (filepath, options = {}) ->
   originalExtension = extension = extractExtension(filepath, options)
 
   # If there was no valid extension on the passed path, get the extension from the
@@ -54,17 +54,17 @@ convertFromPreprossorExtension = (filepath, options = {}) ->
 
 # Creates a new function with pre-filled options. Useful to create a function
 # already set with your default preprocessor extensions
-convertFromPreprossorExtension.curry = (originalOptions = {}) ->
+convertFromPreprocessorExtension.curry = (originalOptions = {}) ->
   (filepath, newOptions = {}) ->
     # Merge passed options on type of curried options
     options = objectAssign {}, originalOptions, newOptions
 
-    convertFromPreprossorExtension filepath, options
+    convertFromPreprocessorExtension filepath, options
 
 
 module.exports = {
   extractExtension
-  convertFromPreprossorExtension
+  convertFromPreprocessorExtension
 
   DEFAULT_PREPROCESSOR_EXTENSIONS
 }
