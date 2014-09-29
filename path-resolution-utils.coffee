@@ -62,7 +62,7 @@ resolveDirAndPath = (inputPath, options = {}) ->
 
 resolvePath = (inputPath, options) ->
   [resolvedDir, resolvedPath] = resolveDirAndPath inputPath, options
-  resolvedPath
+  path.join resolvedDir, resolvedPath
 
 # See if partialPath exists inside any of dirsToCheck optionally with a number of
 # different extensions. If/when found, return an array like: [resolvedDir, relativePathFromDir]
@@ -125,6 +125,7 @@ ensureRelativeDirsAreSubdirs = (extraRelativeDirs, baseDirs) ->
       for baseDir in baseDirs when isSubDir is false
         if extraDir.indexOf(baseDir) is 0
           isSubDir = true
+          break
 
       if isSubDir is false
         throw new Error "Extra relative div #{extraDir} isn't contained in any of the base search directories: #{baseDirs.join(', ')}"
