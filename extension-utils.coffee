@@ -44,6 +44,7 @@ convertFromPreprocessorExtension = (filepath, options = {}) ->
   for baseExtension, preprocessorExtensions of preprocessorsByExtension
     if preprocessorExtensions[extension]?
       newExtension = baseExtension
+      break
 
   if newExtension and originalExtension is ''
     filepath + ".#{newExtension}"

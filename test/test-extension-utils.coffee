@@ -94,3 +94,39 @@ describe 'extension-utils', ->
 
   describe 'convertFromPreprocessorExtension.curry', ->
     # TODO
+
+    curriedConv = convertFromPreprocessorExtension.curry
+      preprocessorsByExtension:
+        # Not working yet
+        # html:
+        #   'html.jade': true
+
+        crazy:
+          extracrazy: true
+
+        css:
+          sass: true
+          scss: true
+
+        js:
+          coffee: true
+          jsx: true
+          lyaml: true
+
+          jade: true
+          handlebars: true
+
+
+    it 'should look for extensions in curried preprocessor extension map', ->
+      curriedConv('a.extracrazy').should.be.eql 'a.crazy'
+      curriedConv('a.sass').should.be.eql 'a.css'
+
+    it 'should not modify extensions that are not in the curried map', ->
+      curriedConv('a.iced').should.be.eql 'a.iced'
+
+
+    # This isn't working yet... (also not sure if it is quite needed yet)
+
+    # it 'should modify preprocssor extensions with periods in them', ->
+    #   curriedConv('a.html.jade').should.be.eql 'a.html'
+
