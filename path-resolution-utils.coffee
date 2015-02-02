@@ -12,6 +12,9 @@ missingFilenameOptionMessage = (inputPath, options) ->
 # among any of the passed loadPaths.
 resolveDirAndPath = (inputPath, options = {}) ->
 
+  # Don't try and resolve paths that are already absolute
+  return inputPath if inputPath?.length > 0 and inputPath[0] is '/'
+
   if options.onlyDirectory
     extensionsToCheck = ['']
   else
