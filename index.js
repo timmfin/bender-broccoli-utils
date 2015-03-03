@@ -8,7 +8,6 @@ var modulesToLoad = [
   './extract-dir-utils',
   './path-resolution-utils',
   './static-version-utils',
-  './project-path-utils',
   './static-conf-utils'
 ];
 
