@@ -23,6 +23,8 @@ resolveDirAndPath = (inputPath, options = {}) ->
   dirsToCheck = options.loadPaths ? []
   extraRelativeDirsToCheck = []
 
+  isReturningAnArray = options.allowMultipleResultsFromSameDirectory # or ...
+
   # Some mangle-ing to convert a relative path into a path that is
   # relative to the srcDir (which should have been included in options.loadPaths)
   if /^\.|^\.\.|^\.\.\//.test inputPath
@@ -42,15 +44,22 @@ resolveDirAndPath = (inputPath, options = {}) ->
     extraRelativeDirsToCheck.push path.dirname(options.filename)
 
   # Do the search
-  [resolvedDir, relativePath] = searchForPath inputPath, dirsToCheck,
+  results = searchForPath inputPath, dirsToCheck,
     extensionsToCheck: extensionsToCheck
     extraRelativeDirsToCheck: extraRelativeDirsToCheck
     onlyAllow: options.onlyAllow
     allowDirectory: options.allowDirectory
+    allowMultipleResultsFromSameDirectory: options.allowMultipleResultsFromSameDirectory
+
+  if isReturningAnArray
+    anythingFound = results.length > 0 and results[0][0]?
+  else
+    anythingFound = results[0]?
+
 
   # Throw a useful error if no path is found. Otherwise return the first successful
   # path found by _searchForPath
-  if not resolvedDir?
+  if not anythingFound
     inputPathText = "#{inputPath}"
 
     if extensionsToCheck?.length > 0
@@ -61,7 +70,7 @@ resolveDirAndPath = (inputPath, options = {}) ->
     errorMessage += " (while processing #{options.filename})" if options.filename?
     throw new Error errorMessage
   else
-    [resolvedDir, relativePath]
+    results
 
 resolvePath = (inputPath, options) ->
   [resolvedDir, resolvedPath] = resolveDirAndPath inputPath, options
@@ -77,46 +86,59 @@ searchForPath = (partialPath, dirsToCheck, options = {}) ->
   originalExtension = extractExtension partialPath, { onlyAllow: options.onlyAllow }
   extensionsToCheck = options.extensionsToCheck ? [originalExtension]
 
+  isReturningAnArray = options.allowMultipleResultsFromSameDirectory # or ...
+
   if options.allowDirectory is true
     extensionsToCheck.push('')
 
   # First, look up in base
   for dirToCheck in dirsToCheck
-    result = searchForPathInDirWithExtensionsHelper(partialPath, dirToCheck, extensionsToCheck, originalExtension)
-    return result if result?
+    results = searchForPathInDirWithExtensionsHelper(partialPath, dirToCheck, extensionsToCheck, originalExtension, { allowMultipleResults: options.allowMultipleResultsFromSameDirectory })
+
+    if results.length > 0
+      return if isReturningAnArray then results else results[0]
 
   # Extra dirs to search for paths (but not to be used when determining the resolvedDir)
   extraRelativeDirs = options.extraRelativeDirsToCheck ? []
   ensureRelativeDirsAreSubdirs(extraRelativeDirs, dirsToCheck)  # this check necessary? (e.g. will the error from extractBaseDirectoryAndRelativePath below be good enough?)
 
   for extraRelativeDir in extraRelativeDirs
-    result = searchForPathInDirWithExtensionsHelper(partialPath, extraRelativeDir, extensionsToCheck, originalExtension)
+    results = searchForPathInDirWithExtensionsHelper(partialPath, extraRelativeDir, extensionsToCheck, originalExtension, { allowMultipleResults: options.allowMultipleResultsFromSameDirectory })
 
     # If we find in the extra relative dirs, convert the returned resolved dir
     # and path to be relative to one of the original passed in dirsToCheck
-    if result?
-      [resolvedDir, resolvedPath] = result
-      return extractBaseDirectoryAndRelativePath path.join(resolvedDir, resolvedPath), dirsToCheck
+    transformedResults = for [resolvedDir, resolvedPath] in results
+      extractBaseDirectoryAndRelativePath path.join(resolvedDir, resolvedPath), dirsToCheck
+
+    if transformedResults.length > 0
+      return if isReturningAnArray then transformedResults else transformedResults[0]
 
   # If not found return empty array (so that destructuring returns undefined
   # instead of error)
   []
 
-searchForPathInDirWithExtensionsHelper = (partialPath, dirToCheck, extensionsToCheck, originalExtension) ->
+searchForPathInDirWithExtensionsHelper = (partialPath, dirToCheck, extensionsToCheck, originalExtension, options = {}) ->
   if originalExtension is ''
     replaceExtensionRegex = /$/
   else
     replaceExtensionRegex = new RegExp "\\.#{originalExtension}$"
 
-  for extensionToCheck in extensionsToCheck
-    pathToCheck = path.join dirToCheck, partialPath
+  results = []
 
+  for extensionToCheck in extensionsToCheck
     if extensionToCheck isnt ''
-      pathToCheck = pathToCheck.replace(replaceExtensionRegex, ".#{extensionToCheck}")
+      modifiedPartialPath = partialPath.replace(replaceExtensionRegex, ".#{extensionToCheck}")
+    else
+      modifiedPartialPath = partialPath
+
+    pathToCheck = path.join dirToCheck, modifiedPartialPath
 
     if fs.existsSync(pathToCheck)
-      partialPath = partialPath.replace(replaceExtensionRegex, ".#{extensionToCheck}") unless extensionToCheck is ''
-      return [dirToCheck, partialPath]
+      results.push [dirToCheck, modifiedPartialPath]
+      break unless options.allowMultipleResults
+
+  results
+
 
 # Ensure that the extra relative dirs are a subdirectory of the base dirs to check
 ensureRelativeDirsAreSubdirs = (extraRelativeDirs, baseDirs) ->
