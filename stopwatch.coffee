@@ -1,6 +1,13 @@
 prettyHrtime = require('pretty-hrtime')
 
 
+convertToMilliseconds = (timeTuple) ->
+  Math.round(timeTuple[0] * 1000 + timeTuple[1] / 1000000)
+
+addTuple = (a, b) ->
+  [a[0] + x[0], a[1] + x[1]]
+
+
 class Stopwatch
   constructor: ->
     # Work without new
@@ -44,13 +51,38 @@ class Stopwatch
     prettyHrtime @split(), options
 
   milliseconds: ->
-    Math.round(@delta[0] * 1000 + @delta[1] / 1000000)
+    convertToMilliseconds @delta
 
   seconds: ->
     @delta[0]
 
   nanoseconds: ->
     @delta[0] * 1000000000 + @delta[1]
+
+  numLaps: ->
+    @laps.length
+
+  lapsSum: ->
+    @lapDeltas.reduce (sum, x) -> [sum[0] + x[0], sum[1] + x[1]]
+
+  prettyOutLapsSum: ->
+    prettyHrtime @lapsSum()
+
+  _lapsSecondsSum: ->
+    @lapDeltas.reduce (sum, x) ->
+      sum + x[0]
+    , 0
+
+  _lapsNanosecondsSum: ->
+    @lapDeltas.reduce (sum, x) ->
+      sum + x[1]
+    , 0
+
+  lapsAverage: ->
+    [@_lapsSecondsSum() / @numLaps(), @_lapsNanosecondsSum() / @numLaps()]
+
+  prettyOutLapsAverage: ->
+    prettyHrtime @lapsAverage()
 
 
 module.exports = Stopwatch
