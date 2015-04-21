@@ -13,15 +13,25 @@ class Stopwatch
     # Work without new
     return new Stopwatch if not (this instanceof Stopwatch)
 
+    @reset()
+
+  reset: ->
     @laps = []
     @lapDeltas = []
+    @stopped = true
+    @
 
   start: ->
     @startTime = process.hrtime()
+    @stopped = false
     @
+
+  ensureStarted: ->
+    @start() if @stopped is true
 
   stop: ->
     @delta = process.hrtime(@startTime)
+    @stopped = true
     @
 
   split: ->
@@ -40,6 +50,7 @@ class Stopwatch
   # Aliases
   @::startAnd = @::start
   @::stopAnd = @::stop
+  @::stopAndClear = @::reset
 
   prettyOut: (options) ->
     prettyHrtime @delta, options
