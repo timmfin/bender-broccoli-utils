@@ -95,6 +95,10 @@ class Stopwatch
   prettyOutLapsAverage: ->
     prettyHrtime @lapsAverage()
 
+  logLap: (message) ->
+    console.log("  -> Lap:", @lap().prettyOutLastLap(), '(' + @prettyOutSplit() + ')', message)
+
+
 
 module.exports = Stopwatch
 
