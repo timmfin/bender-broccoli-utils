@@ -3,8 +3,13 @@
   "description": "Generic bender-broccoli utils used by lots of packages",
   "version": "0.0.1",
   "author": "Tim Finley <tfinley@hubspot.com>",
-  "main": "index.coffee",
+  "main": "index.js",
   "scripts": {
+    "build": "./compile-coffeescript.sh",
+    "watch": "./watch-coffeescript.sh",
+    "clean": "./clean.sh",
+    "prepublish": "./compile-coffeescript.sh",
+    "postinstall": "./run-prepublish-if-not-already-run.sh",
     "test": "mocha --compilers coffee:coffee-script/register"
   },
   "repository": {
@@ -16,7 +21,7 @@
     "pretty-hrtime": "^1.0.0"
   },
   "devDependencies": {
-    "coffee-script": "^1.8.0",
+    "coffee-script": "^1.9.2",
     "mocha": "^1.21.4",
     "should": "^4.0.4"
   }
