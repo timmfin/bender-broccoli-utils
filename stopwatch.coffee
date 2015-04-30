@@ -5,7 +5,7 @@ convertToMilliseconds = (timeTuple) ->
   Math.round(timeTuple[0] * 1000 + timeTuple[1] / 1000000)
 
 addTuple = (a, b) ->
-  [a[0] + x[0], a[1] + x[1]]
+  [a[0] + b[0], a[1] + b[1]]
 
 
 class Stopwatch
@@ -38,6 +38,8 @@ class Stopwatch
     process.hrtime(@startTime)
 
   lap: ->
+    throw new Error "Not started yet" unless @startTime?
+
     if @laps.length > 0
       lastTime = @laps[@laps.length - 1]
     else
@@ -52,11 +54,26 @@ class Stopwatch
   @::stopAnd = @::stop
   @::stopAndClear = @::reset
 
+  getLap: (index) ->
+    if index < 0
+      index = @lapDeltas.length + index
+
+    @lapDeltas[index]
+
+  getLapStartTuple: (index) ->
+    if index < 0
+      index = @laps.length + index
+
+    @laps[index]
+
   prettyOut: (options) ->
     prettyHrtime @delta, options
 
   prettyOutLastLap: (options) ->
-    prettyHrtime @lapDeltas[@lapDeltas.length - 1], options
+    @prettyOutLap -1, options
+
+  prettyOutLap: (index, options) ->
+    prettyHrtime @getLap(index), options
 
   prettyOutSplit: (options) ->
     prettyHrtime @split(), options
@@ -74,7 +91,7 @@ class Stopwatch
     @laps.length
 
   lapsSum: ->
-    @lapDeltas.reduce (sum, x) -> [sum[0] + x[0], sum[1] + x[1]]
+    @lapDeltas.reduce (sum, x) -> addTuple(sum, x)
 
   prettyOutLapsSum: ->
     prettyHrtime @lapsSum()
@@ -97,6 +114,11 @@ class Stopwatch
 
   logLap: (message) ->
     console.log("  -> Lap:", @lap().prettyOutLastLap(), '(' + @prettyOutSplit() + ')', message)
+
+  @withFakedDelta: (delta) ->
+    s = new Stopwatch()
+    s.delta = delta
+    s
 
 
 
