@@ -1,3 +1,4 @@
+colors       = require('colors/safe')
 prettyHrtime = require('pretty-hrtime')
 
 
@@ -6,6 +7,35 @@ convertToMilliseconds = (timeTuple) ->
 
 addTuple = (a, b) ->
   [a[0] + b[0], a[1] + b[1]]
+
+defaultColorFor = (milliseconds, timeTuple) ->
+  switch
+    when milliseconds <= 1 then 'gray'
+    when milliseconds <= 25 then 'white'
+    when milliseconds <= 100 then 'cyan'
+    when milliseconds <= 1000 then 'blue'
+    else 'yellow'
+
+prettyAndColored = (timeTuple, options) ->
+  out = prettyHrtime timeTuple, options
+
+  if options?.color?
+    switch typeof options?.color
+      when "function"
+        color = options.color(convertToMilliseconds(timeTuple), timeTuple)
+      when "string"
+        color = options.color
+      when "boolean"
+        if options.color is true
+          color = defaultColorFor(convertToMilliseconds(timeTuple), timeTuple)
+      else
+        throw new Error "Don't know how to handle options.color: #{options.color}"
+
+    throw new Error "No such color: #{color}" unless colors[color]?
+    out = colors[color](out)
+
+  out
+
 
 
 class Stopwatch
@@ -49,6 +79,14 @@ class Stopwatch
     @lapDeltas.push process.hrtime(lastTime)
     @
 
+  lapSplit: ->
+    if @laps.length > 0
+      lastTime = @laps[@laps.length - 1]
+    else
+      lastTime = @startTime
+
+    process.hrtime(lastTime)
+
   # Aliases
   @::startAnd = @::start
   @::stopAnd = @::stop
@@ -67,16 +105,16 @@ class Stopwatch
     @laps[index]
 
   prettyOut: (options) ->
-    prettyHrtime @delta, options
+    prettyAndColored @delta, options
 
   prettyOutLastLap: (options) ->
     @prettyOutLap -1, options
 
   prettyOutLap: (index, options) ->
-    prettyHrtime @getLap(index), options
+    prettyAndColored @getLap(index), options
 
   prettyOutSplit: (options) ->
-    prettyHrtime @split(), options
+    prettyAndColored @split(), options
 
   milliseconds: ->
     convertToMilliseconds @delta
@@ -94,7 +132,7 @@ class Stopwatch
     @lapDeltas.reduce (sum, x) -> addTuple(sum, x)
 
   prettyOutLapsSum: ->
-    prettyHrtime @lapsSum()
+    prettyAndColored @lapsSum()
 
   _lapsSecondsSum: ->
     @lapDeltas.reduce (sum, x) ->
@@ -110,10 +148,10 @@ class Stopwatch
     [@_lapsSecondsSum() / @numLaps(), @_lapsNanosecondsSum() / @numLaps()]
 
   prettyOutLapsAverage: ->
-    prettyHrtime @lapsAverage()
+    prettyAndColored @lapsAverage()
 
-  logLap: (message) ->
-    console.log("  -> Lap:", @lap().prettyOutLastLap(), '(' + @prettyOutSplit() + ')', message)
+  logLap: (message, options) ->
+    console.log("  -> Lap:", @lap().prettyOutLastLap(options), '(' + @prettyOutSplit(options) + ')', message)
 
   @withFakedDelta: (delta) ->
     s = new Stopwatch()
