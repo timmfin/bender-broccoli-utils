@@ -22,6 +22,7 @@ DEFAULT_PREPROCESSOR_EXTENSIONS =
     coffee: true
     iced: true
     jsx: true
+    cjsx: true
     ts: true
     dart: true
 
