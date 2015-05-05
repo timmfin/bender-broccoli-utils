@@ -17,6 +17,11 @@ defaultColorFor = (milliseconds, timeTuple) ->
     else 'yellow'
 
 prettyAndColored = (timeTuple, options) ->
+  if options?.factor
+    console.log "timeTuple", timeTuple
+    timeTuple = [timeTuple[0] * options.factor, timeTuple[1] * options.factor]
+    console.log "timeTuple", timeTuple
+
   out = prettyHrtime timeTuple, options
 
   if options?.color?
@@ -125,6 +130,9 @@ class Stopwatch
   nanoseconds: ->
     @delta[0] * 1000000000 + @delta[1]
 
+  getLapAsMilliseconds: (index) ->
+    convertToMilliseconds @getLap(index)
+
   numLaps: ->
     @laps.length
 
@@ -152,6 +160,9 @@ class Stopwatch
 
   logLap: (message, options) ->
     console.log("  -> Lap:", @lap().prettyOutLastLap(options), '(' + @prettyOutSplit(options) + ')', message)
+
+  logSplit: (message, options) ->
+    console.log("  -> Split:", @prettyOutSplit(options), message)
 
   @withFakedDelta: (delta) ->
     s = new Stopwatch()
