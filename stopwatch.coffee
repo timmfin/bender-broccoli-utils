@@ -75,22 +75,25 @@ class Stopwatch
   lap: ->
     throw new Error "Not started yet" unless @startTime?
 
-    if @laps.length > 0
-      lastTime = @laps[@laps.length - 1]
-    else
-      lastTime = @startTime
-
+    @lapDeltas.push process.hrtime(@_lastLapStart())
     @laps.push process.hrtime()
-    @lapDeltas.push process.hrtime(lastTime)
+
+    @_lapStartOverride = undefined if @_lapStartOverride?
     @
 
   lapSplit: ->
-    if @laps.length > 0
-      lastTime = @laps[@laps.length - 1]
-    else
-      lastTime = @startTime
+    process.hrtime(@_lastLapStart())
 
-    process.hrtime(lastTime)
+  overrideLapStart: ->
+    @_lapStartOverride = process.hrtime()
+
+  _lastLapStart: ->
+    if @_lapStartOverride?
+      @_lapStartOverride
+    else if @laps.length > 0
+      @laps[@laps.length - 1]
+    else
+      @startTime
 
   # Aliases
   @::startAnd = @::start
@@ -137,6 +140,7 @@ class Stopwatch
     @laps.length
 
   lapsSum: ->
+    return 0 if @lapDeltas.length is 0
     @lapDeltas.reduce (sum, x) -> addTuple(sum, x)
 
   prettyOutLapsSum: ->
@@ -153,6 +157,7 @@ class Stopwatch
     , 0
 
   lapsAverage: ->
+    return 0 if @lapDeltas.length is 0
     [@_lapsSecondsSum() / @numLaps(), @_lapsNanosecondsSum() / @numLaps()]
 
   prettyOutLapsAverage: ->

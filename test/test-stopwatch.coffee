@@ -206,6 +206,14 @@ describe 'stopwatch', ->
       finally
         console.log = oldConsoleLog
 
+    it 'can override the lap start', ->
+      @s.lap()
+      @s.overrideLapStart()
+      console.log "@s._lastLapStart()", @s._lastLapStart()
+      console.log "@s.getLapStartTuple(-1)", @s.getLapStartTuple(-1)
+      @s._lastLapStart().should.not.equal(@s.getLapStartTuple(-1))
+
+
 
   describe 'stats', ->
     beforeEach ->
