@@ -63,10 +63,37 @@ convertFromPreprocessorExtension.curry = (originalOptions = {}) ->
 
     convertFromPreprocessorExtension filepath, options
 
+invertPreprocessorsByExtensionMap: (preprocessorsByExtension) ->
+  result = Object.create(null)
+
+  for origExt, subMap of preprocessorsByExtension
+    for processedExt in Object.keys(subMap)
+      result[processedExt] ?= Object.create(null)
+      result[processedExt][origExt] = true
+
+  result
+
+allPossibleCompiledExtensionsFor: (ext, options) ->
+  # Trim leading dot if provided
+  ext = ext[1..] if ext?[0] is '.'
+
+  invertedMap = invertPreprocessorsByExtensionMap(options.preprocessorsByExtension)
+
+  if invertedMap?[ext]?
+    result = Object.keys(invertedMap[ext])
+  else
+    result = []
+
+  result.push(ext) unless options?.excludeOwnExtension is true
+  result
+
 
 module.exports = {
   extractExtension
   convertFromPreprocessorExtension
+
+  invertPreprocessorsByExtensionMap
+  allPossibleCompiledExtensionsFor
 
   DEFAULT_PREPROCESSOR_EXTENSIONS
 }
