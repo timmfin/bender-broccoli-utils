@@ -63,7 +63,7 @@ convertFromPreprocessorExtension.curry = (originalOptions = {}) ->
 
     convertFromPreprocessorExtension filepath, options
 
-invertPreprocessorsByExtensionMap: (preprocessorsByExtension) ->
+invertPreprocessorsByExtensionMap = (preprocessorsByExtension) ->
   result = Object.create(null)
 
   for origExt, subMap of preprocessorsByExtension
@@ -73,7 +73,7 @@ invertPreprocessorsByExtensionMap: (preprocessorsByExtension) ->
 
   result
 
-allPossibleCompiledExtensionsFor: (ext, options) ->
+allPossibleCompiledExtensionsFor = (ext, options) ->
   # Trim leading dot if provided
   ext = ext[1..] if ext?[0] is '.'
 
