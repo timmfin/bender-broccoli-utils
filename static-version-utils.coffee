@@ -10,6 +10,12 @@ isASimpleStaticVersionString = (str) ->
 convertToSimpleVersionString = (str) ->
   str.replace('static-', '')
 
+convertToVersionStringWithStaticPrefix = (str) ->
+  if str != "static" and not /^static-/.test(str)
+    "static-#{str}"
+  else
+    str
+
 containsHardcodedStaticVersionInPath = (str) ->
   /\/(static-\d\.\d+)\//.test(str)
 
@@ -34,6 +40,7 @@ splitNameAndVersion = (str) ->
 module.exports = {
   isAStaticVersionString
   convertToSimpleVersionString
+  convertToVersionStringWithStaticPrefix
   containsHardcodedStaticVersionInPath
   splitNameAndVersion
 }
