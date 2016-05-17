@@ -37,12 +37,20 @@ splitNameAndVersion = (str) ->
   else
     throw new Error("Invalid name and version string: #{str}")
 
+extractMajorVersion = (str) ->
+  parseInt(convertToSimpleVersionString(str).split('.')[0], 10)
+
+extractMinorVersion = (str) ->
+  parseInt(convertToSimpleVersionString(str).split('.')[1], 10)
+
 module.exports = {
   isAStaticVersionString
   convertToSimpleVersionString
   convertToVersionStringWithStaticPrefix
   containsHardcodedStaticVersionInPath
   splitNameAndVersion
+  extractMajorVersion
+  extractMinorVersion
 }
 
 
